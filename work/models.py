@@ -32,7 +32,7 @@ class Template(models.Model):
     theme = models.CharField(max_length=100, null=True, blank=True)
     code = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='template_images/', null=True, blank=True)
+    image = models.ImageField(upload_to='static/template_images/', null=True, blank=True)
     free = models.BooleanField(default=True)
     tags = models.JSONField(default=list, blank=True)
 

@@ -19,7 +19,7 @@
             <div class="template-card">
                 <div class="template-image">
                     {% if template.image %}
-                    <img src="{{ template.image.url }}" alt="{{ template.title }}">
+                    <img src="{% static 'template_images/'|add:template.image.name %}" alt="{{ template.title }}">
                     {% else %}
                     <img src="https://placehold.co/600x400/f8fafc/6366f1" alt="Placeholder">
                     {% endif %}
