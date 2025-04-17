@@ -13,18 +13,22 @@
         </div>
 
         <!-- filters code here -->
-
         <div class="templates-grid">
             {% for template in templates %}
             <div class="template-card">
                 <div class="template-image">
                     {% if template.image %}
+                    {% load static %}
                     <img src="{% static 'template_images/'|add:template.image.name %}" alt="{{ template.title }}">
                     {% else %}
                     <img src="https://placehold.co/600x400/f8fafc/6366f1" alt="Placeholder">
                     {% endif %}
                     <div class="template-overlay"></div>
                 </div>
+            </div>
+            {% endfor %}
+        </div>
+        
                 <div class="template-content">
                     <h3 class="template-title">{{ template.title }}</h3>
                     <p class="template-description">{{ template.description }}</p>
