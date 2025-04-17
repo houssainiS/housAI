@@ -1,0 +1,646 @@
+{% extends 'work/base.html' %}
+
+{% block title %}housAI | Account Settings {% endblock %}
+
+{% block shortname %}{{ user.username|slice:":2"|upper }}{% endblock %}
+
+{% block content %}
+
+
+
+<main class="settings-container">
+    <div class="container">
+        <div class="settings-header">
+            <h1>Account Settings</h1>
+            <p>Manage your account information, password, and preferences</p>
+        </div>
+
+        <div class="settings-grid">
+            <!-- Account Information -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2>Personal Information</h2>
+                    <p>Update your account details</p>
+                </div>
+                <div class="card-content">
+                    <form method="POST" action="{% url 'work:update_settings' %}" class="settings-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" class="form-input" required>
+                        </div>
+                        {% if username_error %}
+    <div class="error-message" style="color:red;">{{ username_error }}</div>
+{% endif %}
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" class="form-input" required>
+                        </div>
+                        {% if email_error %}
+    <div class="error-message" style="color:red;">{{ email_error }}</div>
+{% endif %}
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                        {% if success %}
+                        <div class="success-message" style="color:green;">Your email has been successfully updated!</div>
+                    {% endif %}
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- Password Change -->
+            <div class="settings-card">
+                <div class="card-header">
+                    <h2>Change Password</h2>
+                    <p>Update your password to keep your account secure</p>
+                    
+
+                </div>
+                <div class="card-content">
+                    <form method="POST" action="{% url 'work:change_password' %}" class="settings-form" id="passwordForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="old_password">Current Password</label>
+                            {% if password_error %}
+    <div class="error-message" style="color:red;">Current password is incorrect.</div>
+{% endif %}
+                            <input type="password" id="old_password" name="old_password" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_password">New Password</label>
+                            <input type="password" id="new_password" name="new_password" class="form-input" required>
+                            <div class="password-strength">
+                                <div class="strength-meter">
+                                    <div class="strength-meter-fill" data-strength="0"></div>
+                                </div>
+                                <div class="strength-text">Password strength: <span>Weak</span></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm New Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-input" required>
+                            <div class="password-match-message"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="changePasswordBtn" disabled>Update Password</button>
+                        </div>
+                        {% if password_updated %}
+    <div class="success-message" style="color:#10b981;">Password successfully updated.</div>
+{% endif %}
+                    </form>
+                    
+                    <!-- Data attributes for alerts -->
+                    <div id="messages" 
+                         data-profile-updated="{{ profile_updated }}" 
+                         data-password-updated="{{ password_updated }}" 
+                         data-password-error="{{ password_error }}" 
+                         data-password-mismatch="{{ password_mismatch }}">
+                    </div>
+                    
+                </div>
+            </div>
+
+           
+            <!-- Danger Zone -->
+            <div class="settings-card danger-zone">
+                <div class="card-header">
+                    <h2>Delete Account</h2>
+                    <p>Permanently delete your account and all associated data</p>
+                </div>
+                <div class="card-content">
+                    <div class="danger-warning">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <p>This action cannot be undone. All your data, including saved websites, will be permanently deleted.</p>
+                    </div>
+                    <form method="POST" action="{% url 'work:delete_account' %}" class="settings-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="delete_confirmation">Type "DELETE" to confirm</label>
+                            <input type="text" id="delete_confirmation" name="delete_confirmation" class="form-input" placeholder="DELETE" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="deleteAccountBtn" class="btn btn-danger" disabled>Delete My Account</button>
+                        </div>
+
+
+                        
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Delete Account Confirmation Modal -->
+<div id="deleteConfirmationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Delete Account</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="2" fill="none">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+            <p>Are you absolutely sure you want to delete your account? This action <strong>cannot be undone</strong>.</p>
+            <p>All your data, including saved websites, templates, and settings will be permanently deleted.</p>
+        </div>
+        <div class="modal-footer">
+            <button id="cancelDeleteBtn" class="btn btn-outline">Cancel</button>
+            <button id="confirmDeleteBtn" class="btn btn-danger">Yes, Delete My Account</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Settings Page Specific Styles */
+    .settings-container {
+        padding: 7rem 0 4rem;
+    }
+
+    .settings-header {
+        margin-bottom: 3rem;
+    }
+
+    .settings-header h1 {
+        margin-bottom: 0.75rem;
+        font-size: 2.25rem;
+    }
+
+    .settings-header p {
+        color: var(--color-foreground-muted);
+        font-size: 1.125rem;
+        max-width: 700px;
+    }
+
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .settings-card {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+        padding: 1.5rem;
+        background-color: var(--color-gray-50);
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-header h2 {
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+        color: var(--color-foreground);
+    }
+
+    .card-header p {
+        color: var(--color-foreground-muted);
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    .settings-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group label {
+        font-size: 0.875rem;
+        color: var(--color-foreground);
+        font-weight: 500;
+    }
+
+    .form-input {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        background-color: var(--color-gray-50);
+        color: var(--color-foreground);
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .form-input.error {
+        border-color: var(--color-error);
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* Password Strength Meter */
+    .password-strength {
+        margin-top: 0.5rem;
+    }
+
+    .strength-meter {
+        height: 4px;
+        background-color: var(--color-gray-200);
+        border-radius: 2px;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+    }
+
+    .strength-meter-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    .strength-meter-fill[data-strength="0"] {
+        width: 0%;
+    }
+
+    .strength-meter-fill[data-strength="1"] {
+        width: 25%;
+        background-color: #ef4444;
+    }
+
+    .strength-meter-fill[data-strength="2"] {
+        width: 50%;
+        background-color: #f59e0b;
+    }
+
+    .strength-meter-fill[data-strength="3"] {
+        width: 75%;
+        background-color: #10b981;
+    }
+
+    .strength-meter-fill[data-strength="4"] {
+        width: 100%;
+        background-color: #10b981;
+    }
+
+    .strength-text {
+        font-size: 0.75rem;
+        color: var(--color-foreground-muted);
+    }
+
+    .password-match-message {
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .password-match-message.match {
+        color: var(--color-success);
+    }
+
+    .password-match-message.no-match {
+        color: var(--color-error);
+    }
+
+    /* Checkbox Styles */
+    .checkbox-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        font-size: 0.875rem;
+        color: var(--color-foreground);
+    }
+
+    /* Danger Zone */
+    .danger-zone .card-header {
+        background-color: rgba(239, 68, 68, 0.1);
+        border-bottom-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .danger-zone .card-header h2 {
+        color: #ef4444;
+    }
+
+    .danger-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        background-color: rgba(239, 68, 68, 0.05);
+        border-radius: var(--border-radius);
+        margin-bottom: 1.5rem;
+    }
+
+    .danger-warning svg {
+        color: #ef4444;
+        flex-shrink: 0;
+    }
+
+    .danger-warning p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--color-foreground);
+    }
+
+    .btn-danger {
+        background-color: #ef4444;
+        color: white;
+        border: 1px solid #ef4444;
+    }
+
+    .btn-danger:hover {
+        background-color: #dc2626;
+        border-color: #dc2626;
+    }
+
+    .btn-danger:disabled {
+        background-color: #fca5a5;
+        border-color: #fca5a5;
+        cursor: not-allowed;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: var(--color-background);
+        border-radius: var(--border-radius);
+        width: 90%;
+        max-width: 500px;
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--color-foreground-muted);
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .modal-icon {
+        color: #ef4444;
+        margin-bottom: 1rem;
+    }
+
+    .modal-body p {
+        margin-bottom: 1rem;
+        color: var(--color-foreground);
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding: 1.5rem;
+        background-color: var(--color-gray-50);
+        border-top: 1px solid var(--border-color);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .settings-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+
+<script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    // Password fields and elements
+    const newPasswordInput = document.getElementById('new_password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const oldPasswordInput = document.getElementById('old_password');
+    const strengthMeter = document.querySelector('.strength-meter-fill');
+    const strengthText = document.querySelector('.strength-text span');
+    const passwordMatchMessage = document.querySelector('.password-match-message');
+    const changePasswordBtn = document.getElementById('changePasswordBtn');
+
+    // Delete account confirmation
+    const deleteConfirmInput = document.getElementById('delete_confirmation');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    const deleteConfirmationModal = document.getElementById('deleteConfirmationModal');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const modalClose = document.querySelector('.modal-close');
+
+    // Password strength checker
+    if (newPasswordInput && strengthMeter && strengthText) {
+        newPasswordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength += 1;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 1;
+            if (password.match(/\d/)) strength += 1;
+            if (password.match(/[^a-zA-Z\d]/)) strength += 1;
+
+            strengthMeter.setAttribute('data-strength', strength);
+
+            switch (strength) {
+                case 0:
+                    strengthText.textContent = 'Weak';
+                    strengthText.style.color = '#ef4444';
+                    break;
+                case 1:
+                    strengthText.textContent = 'Weak';
+                    strengthText.style.color = '#ef4444';
+                    break;
+                case 2:
+                    strengthText.textContent = 'Medium';
+                    strengthText.style.color = '#f59e0b';
+                    break;
+                case 3:
+                    strengthText.textContent = 'Strong';
+                    strengthText.style.color = '#10b981';
+                    break;
+                case 4:
+                    strengthText.textContent = 'Very Strong';
+                    strengthText.style.color = '#10b981';
+                    break;
+            }
+
+            checkPasswordMatch();
+        });
+    }
+
+    // Password match checker
+    if (confirmPasswordInput && passwordMatchMessage) {
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+    }
+
+    function checkPasswordMatch() {
+        const password = newPasswordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+
+        if (confirmPassword === '') {
+            passwordMatchMessage.textContent = '';
+            passwordMatchMessage.className = 'password-match-message';
+            changePasswordBtn.disabled = true;
+            return;
+        }
+
+        if (password === confirmPassword) {
+            passwordMatchMessage.textContent = 'Passwords match';
+            passwordMatchMessage.className = 'password-match-message match';
+            changePasswordBtn.disabled = false;
+        } else {
+            passwordMatchMessage.textContent = 'Passwords do not match';
+            passwordMatchMessage.className = 'password-match-message no-match';
+            changePasswordBtn.disabled = true;
+        }
+    }
+
+    // Handle password change form submission
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(event) {
+            const oldPassword = oldPasswordInput.value;
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            // Check if old password is correct before submitting the form
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                event.preventDefault(); // Prevent form submission if any field is empty
+                alert('Please fill all the fields');
+                return;
+            }
+
+            // Check if the new passwords match
+            if (newPassword !== confirmPassword) {
+                event.preventDefault(); // Prevent form submission if passwords don't match
+                alert('New passwords do not match');
+                return;
+            }
+
+            // Form will be submitted to the server for backend validation
+        });
+    }
+
+    // Delete account confirmation logic
+    if (deleteConfirmInput && deleteAccountBtn) {
+        deleteConfirmInput.addEventListener('input', function() {
+            deleteAccountBtn.disabled = this.value !== 'DELETE';
+        });
+
+        deleteAccountBtn.addEventListener('click', function() {
+            if (deleteConfirmInput.value === 'DELETE') {
+                deleteConfirmationModal.style.display = 'flex';
+            }
+        });
+    }
+
+    // Modal controls
+    if (cancelDeleteBtn && modalClose) {
+        cancelDeleteBtn.addEventListener('click', function() {
+            deleteConfirmationModal.style.display = 'none';
+        });
+
+        modalClose.addEventListener('click', function() {
+            deleteConfirmationModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === deleteConfirmationModal) {
+                deleteConfirmationModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Handle final delete confirmation
+    if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', function() {
+        // Ensure the action URL is correctly formatted
+        let action = "{% url 'work:delete_account' %}";
+        
+        // Use template literals to ensure proper string concatenation
+        const form = document.querySelector(`form[action*="${action}"]`);
+        
+        // Check if the form is found, then submit
+        if (form) {
+            form.submit();
+        } else {
+            console.error('Form with the action URL not found');
+        }
+    });
+}
+
+});
+
+</script>
+
+{% endblock %}

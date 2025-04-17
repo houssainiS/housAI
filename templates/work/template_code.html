@@ -1,0 +1,116 @@
+
+
+<h2>{{ template.title }}</h2>
+<p><strong>Description:</strong> {{ template.description }}</p>
+
+<h3>Generated Code:</h3>
+
+<div class="code-container" id="code-container">
+    {% for line in code_lines %}
+        <div class="code-line">
+            <span class="line-number">{{ forloop.counter }}</span>
+            <span class="code">{{ line }}</span>
+        </div>
+    {% endfor %}
+</div>
+
+
+<style>
+    body {
+        font-family: 'Courier New', monospace;
+        margin: 0;
+        background-color: #1e1e1e;
+        color: #d4d4d4;
+        padding: 20px;
+        overflow: hidden;
+    }
+
+    h2, h3, p {
+        color: #dcdcdc;
+    }
+
+    h2 {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 1.1em;
+        margin-bottom: 20px;
+    }
+
+    .code-container {
+        font-family: 'Courier New', monospace;
+        background-color: #2d2d2d;
+        color: #dcdcdc;
+        padding: 20px;
+        border-radius: 8px;
+        overflow: auto;
+        width: 100%;
+        max-height: 500px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+
+    .code-line {
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px solid #444;
+    }
+
+    .line-number {
+        width: 40px;
+        text-align: right;
+        margin-right: 10px;
+        color: #888;
+        user-select: none;
+    }
+
+    .code {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        cursor: text;
+        user-select: text;
+    }
+
+    .code-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .code-container::-webkit-scrollbar-thumb {
+        background-color: #888;
+        border-radius: 10px;
+    }
+
+    .code-container::-webkit-scrollbar-track {
+        background-color: #2e2e2e;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const codeContainer = document.getElementById("code-container");
+
+        document.body.addEventListener('mousedown', function(event) {
+            if (event.target !== codeContainer && !codeContainer.contains(event.target)) {
+                event.preventDefault();
+            }
+        });
+
+        codeContainer.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'a') {
+                event.preventDefault();
+                selectCode();
+            }
+        });
+
+        function selectCode() {
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.selectNodeContents(codeContainer);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    });
+</script>

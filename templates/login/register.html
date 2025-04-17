@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - housAI</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/welcome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login_style.css' %}">
+ 
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="auth-container">
+        <a href="{% url 'login:index' %}" class="back-link">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Home
+        </a>
+
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <div class="logo-mark">
+                        <img src="{% static 'images/logo.png' %}" class="logo-mark" alt="">
+                    </div>
+                    <span>housAI</span>
+                </div>
+                <h2>Create an account</h2>
+                <p>Join thousands of users building with AI</p>
+            </div>
+
+            <form class="auth-form" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            </form>
+
+            
+
+            <div class="auth-footer">
+                Already have an account? <a href="{% url 'login:login' %}">Log in</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/script.js' %}"></script>
+    <script>
+        // Password strength meter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const strengthSegments = document.querySelectorAll('.strength-segment');
+            const strengthText = document.querySelector('.strength-text');
+            
+            if (passwordInput && strengthSegments.length) {
+                passwordInput.addEventListener('input', function() {
+                    const password = this.value;
+                    let strength = 0;
+                    
+                    // Check password length
+                    if (password.length >= 8) {
+                        strength += 1;
+                    }
+                    
+                    // Check for numbers
+                    if (/\d/.test(password)) {
+                        strength += 1;
+                    }
+                    
+                    // Check for lowercase letters
+                    if (/[a-z]/.test(password)) {
+                        strength += 1;
+                    }
+                    
+                    // Check for uppercase letters or special characters
+                    if (/[A-Z]/.test(password) || /[^a-zA-Z0-9]/.test(password)) {
+                        strength += 1;
+                    }
+                    
+                    // Update strength meter
+                    strengthSegments.forEach((segment, index) => {
+                        if (index < strength) {
+                            segment.classList.add('active');
+                        } else {
+                            segment.classList.remove('active');
+                        }
+                    });
+                    
+                    // Update strength text
+                    if (password.length === 0) {
+                        strengthText.textContent = 'Password strength';
+                        strengthText.className = 'strength-text';
+                    } else if (strength === 1) {
+                        strengthText.textContent = 'Weak password';
+                        strengthText.className = 'strength-text weak';
+                    } else if (strength === 2) {
+                        strengthText.textContent = 'Fair password';
+                        strengthText.className = 'strength-text fair';
+                    } else if (strength === 3) {
+                        strengthText.textContent = 'Good password';
+                        strengthText.className = 'strength-text good';
+                    } else {
+                        strengthText.textContent = 'Strong password';
+                        strengthText.className = 'strength-text strong';
+                    }
+                });
+            }
+            
+            // Confirm password validation
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const registerForm = document.querySelector('.auth-form');
+            
+            if (confirmPasswordInput && passwordInput && registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    if (passwordInput.value !== confirmPasswordInput.value) {
+                        e.preventDefault();
+                        alert('Passwords do not match. Please try again.');
+                    }
+                });
+                
+                confirmPasswordInput.addEventListener('input', function() {
+                    if (this.value !== passwordInput.value) {
+                        this.setCustomValidity('Passwords do not match');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

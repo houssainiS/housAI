@@ -1,0 +1,126 @@
+{% extends 'work/base.html' %}
+
+{% block title %}housAI | Saved{% endblock %}
+{% block shortname %}{{ user.username|slice:":2"|upper }}{% endblock %}
+{% block navactivehistory %}class="active"{% endblock %}
+
+{% block content %}
+<style>
+    .bg-shapes{
+        display: none;
+    }
+    /* General styles */
+    body {
+        
+        background-color: #f9f9f9;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    p {
+        font-size: 1.2em;
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    iframe {
+        border: none;
+        border-radius: 8px;
+        max-width: 100%;
+        margin: 0 auto;
+        display: block;
+    }
+
+    /* Button styles */
+    .btn {
+        display: inline-block;
+        padding: 12px 25px;
+        text-align: center;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        margin: 10px;
+        transition: background-color 0.3s;
+        margin-bottom: -5px;
+    }
+
+    .btn-demo {
+        background-color: purple;
+        color: white;
+    }
+
+    .btn-demo:hover {
+        background-color: #7b3f98;
+    }
+
+    .btn-code {
+        background-color: grey;
+        color: white;
+    }
+
+    .btn-code:hover {
+        background-color: #595959;
+    }
+    .btn-edit {
+        background-color: blue;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #0033cc;
+    }
+</style>
+
+<h2 style="margin-top: 30px;">{{ website.title }}</h2>
+<p><strong>Prompt:</strong> {{ website.prompt }}</p>
+
+<h3>Generated Website:</h3>
+<iframe id="preview" width="100%" height="500px"></iframe>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Access the iframe
+        let iframe = document.getElementById('preview');
+        let iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Preview</title>
+            </head>
+            <body>
+                {{ website.body|escapejs }}
+                <script>{{ website.script|escapejs }}<\/script>
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
+
+        // Inject CSS dynamically using JavaScript
+        const styleTag = iframeDoc.createElement('style');
+        styleTag.innerHTML = `{{ website.css|escapejs }}`;
+        iframeDoc.head.appendChild(styleTag);
+    });
+</script>
+
+<!-- Buttons for demo and code -->
+<div class="button-container" style="text-align: center;">
+    <a href="{% url 'work:demo' user.id website.id %}" class="btn btn-demo" target="_blank">Demo</a>
+    <a href="{% url 'work:view_code' user.id website.id %}" class="btn btn-code" target="_blank">Code</a>
+    <a href="{% url 'work:edit' user.id website.id %}" class="btn btn-edit" target="_blank">Edit</a>
+
+</div>
+</div>
+
+{% endblock %}

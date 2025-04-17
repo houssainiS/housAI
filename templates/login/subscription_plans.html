@@ -1,0 +1,523 @@
+{% extends 'work/base.html' %}
+
+{% block title %}housAI | Subscription Plans{% endblock %}
+
+{% block shortname %}{{ user.username|slice:":2"|upper }}{% endblock %}
+
+{% block content %}
+<main class="subscription-container">
+    <div class="container">
+        <div class="subscription-header">
+            <h1>Choose Your Subscription Plan</h1>
+            <p>Select the plan that best fits your website generation needs</p>
+        </div>
+
+        <div class="current-plan-card">
+            <div class="current-plan-icon">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                    {% if current_subscription.plan == 'premium' %}
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    {% elif current_subscription.plan == 'pro' %}
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    {% else %}
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    {% endif %}
+                </svg>
+            </div>
+            <div class="current-plan-info">
+                <h2>Your Current Plan</h2>
+                {% if current_subscription %}
+                    <div class="plan-badge 
+                        {% if current_subscription.plan == 'premium' %}
+                            plan-premium
+                        {% elif current_subscription.plan == 'pro' %}
+                            plan-pro
+                        {% else %}
+                            plan-free
+                        {% endif %}
+                    ">
+                        {{ current_subscription.plan|title }}
+                    </div>
+                    <p>Your subscription will {% if current_subscription.end_date %}expire on {{ current_subscription.end_date|date:"F d, Y" }}{% else %}renew automatically{% endif %}.</p>
+                {% else %}
+                    <div class="plan-badge plan-free">Free</div>
+                    <p>You don't have an active subscription. Choose a plan below to upgrade.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="subscription-plans">
+            <!-- Free Plan -->
+            <div class="plan-card {% if current_subscription.plan == 'free' or not current_subscription %}plan-active{% endif %}">
+                <div class="plan-header">
+                    <div class="plan-name">Free Plan</div>
+                    <div class="plan-price">
+                        <span class="price">$0</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="plan-features">
+                    <ul>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Basic website generation
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Up to 20 websites per month
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            No image generation
+                        </li>
+                        <li class="feature-disabled">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Advanced customization
+                        </li>
+                        <li class="feature-disabled">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Priority support
+                        </li>
+                    </ul>
+                </div>
+                <div class="plan-action">
+                    {% if current_subscription.plan == 'free' or not current_subscription %}
+                        <button class="btn btn-outline" disabled>Current Plan</button>
+                    {% else %}
+                        <a href="{% url 'login:update_subscription' 'free' %}" class="btn btn-outline">Select Plan</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Pro Plan -->
+            <div class="plan-card {% if current_subscription.plan == 'pro' %}plan-active{% endif %}">
+                <div class="plan-header">
+                    <div class="plan-name">Pro Plan</div>
+                    <div class="plan-price">
+                        <span class="price">$29</span>
+                        <span class="period">/month</span>
+                    </div>
+                    <div class="plan-badge plan-popular">Popular</div>
+                </div>
+                <div class="plan-features">
+                    <ul>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Enhanced website generation
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Unlimited websites
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Limited image generation
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Basic customization options
+                        </li>
+                        <li class="feature-disabled">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                            Priority support
+                        </li>
+                    </ul>
+                </div>
+                <div class="plan-action">
+                    {% if current_subscription.plan == 'pro' %}
+                        <button class="btn btn-primary" disabled>Current Plan</button>
+                    {% else %}
+                        <a href="{% url 'login:update_subscription' 'pro' %}" class="btn btn-primary">Select Plan</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="plan-card {% if current_subscription.plan == 'premium' %}plan-active{% endif %}">
+                <div class="plan-header">
+                    <div class="plan-name">Premium Plan</div>
+                    <div class="plan-price">
+                        <span class="price">$79</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <div class="plan-features">
+                    <ul>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Advanced website generation
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Unlimited websites
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Unlimited image generation
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Advanced customization options
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            Priority support
+                        </li>
+                    </ul>
+                </div>
+                <div class="plan-action">
+                    {% if current_subscription.plan == 'premium' %}
+                        <button class="btn btn-primary" disabled>Current Plan</button>
+                    {% else %}
+                        <a href="{% url 'login:update_subscription' 'premium' %}" class="btn btn-primary">Select Plan</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="subscription-faq">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>How do I change my subscription?</h3>
+                    <p>You can change your subscription at any time by selecting a new plan above. Changes take effect immediately.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Will I be charged right away?</h3>
+                    <p>For paid plans, you'll be charged immediately upon subscription.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Can I cancel my subscription?</h3>
+                    <p>Yes, you can cancel your subscription at any time. Your access will continue until the end of your billing period.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>What payment methods do you accept?</h3>
+                    <p>We accept all major credit cards, PayPal, and bank transfers for annual plans.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+    /* Subscription Page Specific Styles */
+    .subscription-container {
+        padding: 7rem 0 4rem;
+    }
+
+    .subscription-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .subscription-header h1 {
+        margin-bottom: 0.75rem;
+        font-size: 2.25rem;
+    }
+
+    .subscription-header p {
+        color: var(--color-foreground-muted);
+        font-size: 1.125rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Current Plan Card */
+    .current-plan-card {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 3rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .current-plan-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background-color: var(--color-primary-light);
+        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .current-plan-info {
+        flex: 1;
+    }
+
+    .current-plan-info h2 {
+        margin-bottom: 0.75rem;
+        font-size: 1.5rem;
+    }
+
+    .current-plan-info p {
+        color: var(--color-foreground-muted);
+        margin-top: 0.75rem;
+    }
+
+    /* Plan Badge */
+    .plan-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .plan-free {
+        background-color: var(--color-gray-100);
+        color: var(--color-foreground);
+    }
+
+    .plan-pro {
+        background-color: #818cf8;
+        color: white;
+    }
+
+    .plan-premium {
+        background-color: #6366f1;
+        color: white;
+    }
+
+    .plan-popular {
+        background-color: #10b981;
+        color: white;
+        position: absolute;
+        top: 0px;
+        right: 1.5rem;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+    }
+
+    /* Subscription Plans */
+    .subscription-plans {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .plan-card {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .plan-active {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .plan-header {
+        padding: 2rem;
+        background-color: var(--color-gray-50);
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+    }
+
+    .plan-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    .price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--color-foreground);
+    }
+
+    .period {
+        color: var(--color-foreground-muted);
+        font-size: 0.875rem;
+    }
+
+    .plan-features {
+        padding: 2rem;
+        flex: 1;
+    }
+
+    .plan-features ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .plan-features li {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        color: var(--color-foreground);
+    }
+
+    .plan-features li:last-child {
+        margin-bottom: 0;
+    }
+
+    .plan-features li svg {
+        color: var(--color-success);
+        flex-shrink: 0;
+    }
+
+    .feature-disabled {
+        color: var(--color-foreground-muted) !important;
+    }
+
+    .feature-disabled svg {
+        color: var(--color-foreground-muted) !important;
+    }
+
+    .plan-action {
+        padding: 1.5rem 2rem;
+        background-color: var(--color-gray-50);
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+    }
+
+    .plan-action .btn {
+        width: 100%;
+    }
+
+    /* FAQ Section */
+    .subscription-faq {
+        margin-top: 4rem;
+    }
+
+    .subscription-faq h2 {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-size: 1.75rem;
+    }
+
+    .faq-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .faq-item {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .faq-item h3 {
+        margin-bottom: 0.75rem;
+        font-size: 1.125rem;
+        color: var(--color-foreground);
+    }
+
+    .faq-item p {
+        color: var(--color-foreground-muted);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .current-plan-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 1.5rem;
+            gap: 1rem;
+        }
+
+        .subscription-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .subscription-plans {
+            grid-template-columns: 1fr;
+        }
+
+        .plan-card {
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Plan card hover effect
+        const planCards = document.querySelectorAll('.plan-card');
+        
+        planCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                if (!this.classList.contains('plan-active')) {
+                    this.style.borderColor = 'var(--color-primary-light)';
+                }
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('plan-active')) {
+                    this.style.borderColor = 'var(--border-color)';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

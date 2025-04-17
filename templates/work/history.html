@@ -1,0 +1,379 @@
+{% extends 'work/base.html' %}
+
+{% block title %}Saved Websites{% endblock %}
+{% block shortname %}{{ user.username|slice:":2"|upper }}{% endblock %}
+{% block navactivehistory %}class="active"{% endblock %}
+
+{% block content %}
+<main class="saved-websites-container">
+    <div class="container">
+        <div class="saved-websites-header">
+            <h1>Saved Generations</h1>
+            <p>Your collection of Websites saved for future reference</p>
+        </div>
+
+        {% if saved_websites %}
+        <div class="saved-websites-grid">
+            {% for website in saved_websites %}
+            <div class="website-card">
+                <div class="website-content">
+                    <h3 class="website-title">{{ website.title }}</h3>
+                    <div class="website-meta">
+                        <span class="website-date">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            {% if website.created_at %}
+                                {{ website.created_at|date:"M d, Y" }}
+                            {% else %}
+                                Date not available
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="website-prompt">
+                        <h4>Prompt:</h4>
+                        <p>{{ website.prompt }}</p>
+                    </div>
+                </div>
+                <div class="website-actions">
+                    <a href="{% url 'work:view_saved_website' user.id website.id %}" class="btn btn-primary btn-small">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        View
+                    </a>
+                    <button class="btn btn-outline btn-small btn-danger delete-button" data-url="{% url 'work:delete_website' website.id %}">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Delete
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <div class="empty-state">
+            <svg viewBox="0 0 24 24" width="64" height="64" stroke="currentColor" stroke-width="2" fill="none">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+            </svg>
+            <h3>No saved generations yet</h3>
+            <p>When you save a generated website, it will appear here for easy access.</p>
+            <a href="{% url 'work:advanced_mode' user.id %}" class="btn btn-primary">Create a Website</a>
+        </div>
+        {% endif %}
+    </div>
+</main>
+
+<style>
+    /* Saved Websites Page Specific Styles */
+    .saved-websites-container {
+        padding: 7rem 0 4rem;
+    }
+
+    .saved-websites-header {
+        margin-bottom: 3rem;
+    }
+
+    .saved-websites-header h1 {
+        margin-bottom: 0.75rem;
+        font-size: 2.25rem;
+    }
+
+    .saved-websites-header p {
+        color: var(--color-foreground-muted);
+        font-size: 1.125rem;
+        max-width: 700px;
+    }
+
+    .saved-websites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .website-card {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        transition: var(--transition);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .website-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-primary-light);
+    }
+
+    .website-content {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .website-title {
+        margin-bottom: 0.75rem;
+        font-size: 1.25rem;
+        color: var(--color-foreground);
+    }
+
+    .website-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .website-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--color-foreground-muted);
+    }
+
+    .website-date svg {
+        color: var(--color-primary);
+    }
+
+    .website-prompt {
+        margin-bottom: 1rem;
+    }
+
+    .website-prompt h4 {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        color: var(--color-foreground-muted);
+    }
+
+    .website-prompt p {
+        font-size: 0.875rem;
+        color: var(--color-foreground);
+        line-height: 1.5;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        line-clamp: 3; /* fixing the css error (compatibility) */
+    }
+
+    .website-actions {
+        display: flex;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background-color: var(--color-gray-50);
+        border-top: 1px solid var(--border-color);
+    }
+
+    .btn-danger {
+        color: var(--color-error);
+        border-color: var(--color-error-light);
+    }
+
+    .btn-danger:hover {
+        background-color: var(--color-error);
+        color: white;
+        border-color: var(--color-error);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: var(--color-gray-50);
+        border-radius: var(--border-radius);
+        border: 1px dashed var(--border-color);
+    }
+
+    .empty-state svg {
+        color: var(--color-foreground-muted);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.5rem;
+        color: var(--color-foreground);
+    }
+
+    .empty-state p {
+        color: var(--color-foreground-muted);
+        margin-bottom: 1.5rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Confirmation Modal */
+    .confirmation-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: var(--color-background);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .modal-header h3 {
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-header p {
+        color: var(--color-foreground-muted);
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .saved-websites-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .saved-websites-header h1 {
+            font-size: 1.75rem;
+        }
+    }
+</style>
+
+<!-- Confirmation Modal -->
+<div id="deleteConfirmationModal" class="confirmation-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Delete Website</h3>
+            <p>Are you sure you want to delete this website? This action cannot be undone.</p>
+        </div>
+        <div class="modal-actions">
+            <button id="confirmDelete" class="btn btn-danger">Delete</button>
+            <button id="cancelDelete" class="btn btn-outline">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-button');
+        const modal = document.getElementById('deleteConfirmationModal');
+        const confirmButton = document.getElementById('confirmDelete');
+        const cancelButton = document.getElementById('cancelDelete');
+        
+        let currentUrl = '';
+        let currentCard = null;
+        
+        // Show modal when delete button is clicked
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                currentUrl = this.getAttribute('data-url');
+                currentCard = this.closest('.website-card');
+                modal.style.display = 'flex';
+            });
+        });
+        
+        // Hide modal when cancel is clicked
+        cancelButton.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        // Hide modal when clicking outside
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Handle delete confirmation
+        confirmButton.addEventListener('click', function() {
+            if (!currentUrl || !currentCard) return;
+            
+            fetch(currentUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add fade-out animation
+                    currentCard.style.opacity = '0';
+                    currentCard.style.transform = 'scale(0.95)';
+                    currentCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    
+                    // Remove the card after animation
+                    setTimeout(() => {
+                        currentCard.remove();
+                        
+                        // Check if there are no more cards
+                        const remainingCards = document.querySelectorAll('.website-card');
+                        if (remainingCards.length === 0) {
+                            // Refresh the page to show the empty state
+                            window.location.reload();
+                        }
+                    }, 300);
+                } else {
+                    alert('Error deleting website: ' + (data.message || 'Unknown error'));
+                }
+                
+                // Hide the modal
+                modal.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the website');
+                modal.style.display = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,602 @@
+{% extends 'work/base.html' %}
+
+{% block title %}Profile - housAI{% endblock %}
+
+{% block shortname %}{{ user.username|slice:":2"|upper }}{% endblock %}
+
+{% block content %}
+<main class="profile-container">
+    <div class="container">
+        <div class="profile-header">
+            <h1>User Profile</h1>
+            <p>Manage your account information and subscription details</p>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-sidebar">
+                <div class="profile-avatar">
+                    <div class="avatar-circle">
+                        <span>{{ user.username|slice:":2"|upper }}</span>
+                    </div>
+                    <h2>{{ user.username }}</h2>
+                    <p class="member-since">Member since {{ user.date_joined|date:"F Y" }}</p>
+                </div>
+                <div class="profile-menu">
+                    <a href="#" class="profile-menu-item active">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        Account Information
+                    </a>
+                    <!-- <a href="#" class="profile-menu-item">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        Security
+                    </a>
+                    <a href="#" class="profile-menu-item">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        Notifications
+                    </a>
+                    <a href="#" class="profile-menu-item">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                            <line x1="1" y1="10" x2="23" y2="10"></line>
+                        </svg>
+                        Billing
+                    </a> -->
+                </div>
+            </div>
+
+            <div class="profile-main">
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Account Information</h3>
+                    </div>
+                    <div class="profile-info">
+                        <div class="info-group">
+                            <label>Username</label>
+                            <p>{{ user.username }}</p>
+                        </div>
+                        <div class="info-group">
+                            <label>Email Address</label>
+                            <p>{{ user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Subscription Plan</h3>
+                        <a href="{% url 'login:subscription_plans' %}">
+                            <button class="btn btn-outline btn-small">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polygon points="16 3 21 8 8 21 3 21 3 16 16 3"></polygon>
+                            </svg>
+                            Upgrade
+                        </a>
+                        </button>
+                    </div>
+                    <div class="subscription-info">
+                        <div class="current-plan">
+                            <div class="plan-badge 
+                                {% if user.subscription_plan == 'premium' %}
+                                    plan-premium
+                                {% elif user.subscription_plan == 'pro' %}
+                                    plan-pro
+                                {% else %}
+                                    plan-free
+                                {% endif %}
+                            ">
+                                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                                    {% if user.subscription.plan == 'premium' %}
+
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    {% elif user.subscription.plan == 'pro' %}
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    {% else %}
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                    {% endif %}
+                                </svg>
+                                <span>
+                                    {% if user.subscription.plan  %}
+                                        {{ user.subscription.plan |title }}
+                                    {% else %}
+                                        Free
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="plan-details">
+                                <h4>
+                                    {% if user.subscription.plan  == 'premium' %}
+                                        Premium Plan | BTW everything free now
+                                    {% elif user.subscription.plan  == 'pro' %}
+                                        Pro Plan | BTW everything free now
+                                    {% else %}
+                                        Free Plan | BTW everything free now 
+                                    {% endif %}
+                                </h4>
+                                <p>
+                                    {% if user.subscription.plan  == 'premium' %}
+                                        Unlimited access to all features and priority support
+                                    {% elif user.subscription.plan  == 'pro' %}
+                                        Advanced features with increased usage limits
+                                    {% else %}
+                                        Basic access with limited features
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="plan-features">
+                            <h4>Your Plan Includes:</h4>
+                            <ul class="feature-list">
+                                {% if user.subscription.plan  == 'premium' %}
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Unlimited website generations
+                                    </li>
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Advanced customization options
+                                    </li>
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Priority support
+                                    </li>
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Everything is free now
+                                    </li>
+                                {% elif user.subscription.plan  == 'pro' %}
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Up to 50 website generations per month
+                                    </li>
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Advanced customization options
+                                    </li>
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        everything is free now
+                                    </li>
+                                {% else %}
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Up to 15 website generations per month
+                                    </li>
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Basic customization options
+                                    </li>
+                                    <li class="feature-item">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        Everything is free now
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Usage Statistics</h3>
+                    </div>
+                    <div class="usage-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h4>Websites Generated</h4>
+                                <p class="stat-value">{{ user.websites_generated|default:"0" }}</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h4>Websites Saved</h4>
+                                <p class="stat-value">{{ user.websites_saved|default:"0" }}</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                            </div>
+                            <div class="stat-content">
+                                <h4>Remaining This Month</h4>
+                                <p class="stat-value">
+                                    {% if user.subscription_plan == 'premium' %}
+                                        Unlimited
+                                    {% elif user.subscription_plan == 'pro' %}
+                                        {{ user.remaining_generations|default:"50" }}
+                                    {% else %}
+                                        {{ user.remaining_generations|default:"5" }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+    /* Profile Page Specific Styles */
+    .profile-container {
+        padding: 7rem 0 4rem;
+    }
+
+    .profile-header {
+        margin-bottom: 3rem;
+    }
+
+    .profile-header h1 {
+        margin-bottom: 0.75rem;
+        font-size: 2.25rem;
+    }
+
+    .profile-header p {
+        color: var(--color-foreground-muted);
+        font-size: 1.125rem;
+        max-width: 700px;
+    }
+
+    .profile-content {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+    }
+
+    /* Profile Sidebar */
+    .profile-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .profile-avatar {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .avatar-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .profile-avatar h2 {
+        margin-bottom: 0.5rem;
+        font-size: 1.25rem;
+    }
+
+    .member-since {
+        color: var(--color-foreground-muted);
+        font-size: 0.875rem;
+    }
+
+    .profile-menu {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .profile-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        color: var(--color-foreground);
+        border-bottom: 1px solid var(--border-color);
+        transition: var(--transition);
+    }
+
+    .profile-menu-item:last-child {
+        border-bottom: none;
+    }
+
+    .profile-menu-item:hover {
+        background-color: var(--color-gray-50);
+    }
+
+    .profile-menu-item.active {
+        background-color: var(--color-primary-light);
+        color: var(--color-primary);
+        font-weight: 500;
+    }
+
+    .profile-menu-item.active svg {
+        color: var(--color-primary);
+    }
+
+    /* Profile Main Content */
+    .profile-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .profile-card {
+        background-color: var(--color-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--color-gray-50);
+    }
+
+    .card-header h3 {
+        font-size: 1.125rem;
+        color: var(--color-foreground);
+    }
+
+    .profile-info {
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .info-group label {
+        font-size: 0.875rem;
+        color: var(--color-foreground-muted);
+    }
+
+    .info-group p {
+        font-size: 1rem;
+        color: var(--color-foreground);
+    }
+
+    /* Subscription Styles */
+    .subscription-info {
+        padding: 1.5rem;
+    }
+
+    .current-plan {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .plan-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .plan-free {
+        background-color: var(--color-gray-100);
+        color: var(--color-foreground);
+    }
+
+    .plan-pro {
+        background-color: #818cf8;
+        color: white;
+    }
+
+    .plan-premium {
+        background-color: #6366f1;
+        color: white;
+    }
+
+    .plan-details h4 {
+        margin-bottom: 0.5rem;
+        font-size: 1.125rem;
+    }
+
+    .plan-details p {
+        color: var(--color-foreground-muted);
+        font-size: 0.875rem;
+    }
+
+    .plan-features {
+        border-top: 1px solid var(--border-color);
+        padding-top: 1.5rem;
+    }
+
+    .plan-features h4 {
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    .feature-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--color-foreground);
+    }
+
+    .feature-item svg {
+        color: var(--color-success);
+    }
+
+    /* Usage Stats */
+    .usage-stats {
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: var(--color-primary-light);
+        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-content h4 {
+        font-size: 0.875rem;
+        color: var(--color-foreground-muted);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-foreground);
+    }
+
+    
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+        .profile-content {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-sidebar {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .profile-menu {
+            flex: 2;
+            min-width: 250px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .profile-sidebar {
+            flex-direction: column;
+        }
+
+        .profile-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .current-plan {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .usage-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+            
+        
+        // Profile menu item selection
+        const menuItems = document.querySelectorAll('.profile-menu-item');
+        
+        menuItems.forEach(item => {
+            item.addEventListener('click', function(event) {
+                event.preventDefault();
+                
+                // Remove active class from all items
+                menuItems.forEach(i => i.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Here you would typically show/hide different sections based on the selected menu item
+                // For this demo, we're just showing the Account Information section
+            });
+        });
+    });
+</script>
+{% endblock %}

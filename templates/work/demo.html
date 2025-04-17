@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ website.title }}</title>
+    <style id="dynamic-style"></style> <!-- Empty style tag -->
+</head>
+<body>
+    {{ website.body|safe }}
+    
+    <script>
+        // Inject CSS into <style> tag
+        var cssContent = "{{ website.css|escapejs }}";
+        var styleTag = document.getElementById('dynamic-style');
+        styleTag.innerHTML = cssContent;
+    </script>
+
+    <!-- Inject JS directly -->
+    <script>
+        {{ website.js|safe }}
+    </script>
+</body>
+</html>

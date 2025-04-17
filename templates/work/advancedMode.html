@@ -1,0 +1,341 @@
+{% extends 'work/base.html' %}
+
+{% block title %}housAI | Web Generating{% endblock %}
+{% block shortname %}{{ user.username|slice:":2"|upper }}{% endblock %}
+
+
+{% block content %}
+<div id="loadingIndicator" class="loading-spinner" style="display: none;">
+    <div class="spinner"></div>
+    <p>Generating your website...</p>
+</div>
+
+
+<div id="generatedContent" class="generated-content">
+    <!-- This iframe will display the generated website -->
+    <iframe id="websitePreview" class="website-preview"></iframe>
+</div>
+
+<div class="input-container">
+    <label for="imageSwitch" style="margin-left: 10px;">Generate Images</label>
+    <input type="checkbox" style="margin-left: 10px;margin-right: 10px;" id="imageSwitch" class="image-switch" />
+
+    <input type="text" id="userMessage" class="user-input" placeholder="Describe your website..." />
+    
+    <button onclick="generateWebsite()" class="generate-button">
+        Generate
+    </button>
+
+    <!-- Save button initially hidden -->
+    <button id="saveButton" class="save-button" style="display: none;" onclick="showSaveModal()">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        Save</button>
+</div>
+
+<!-- Modal for entering title -->
+
+<div id="titlePopup" class="title-popup">
+    <div class="popup-content">
+        <p>Please enter a title:</p>
+        <input type="text" id="titleInput" class="title-input" placeholder="Enter your title" />
+        <button id="doneButton" class="done-button" onclick="closePopup()">Done</button>
+        <button id="cancelButton" class="cancel-button" onclick="closePopup()">Cancel</button> <!-- Cancel Button -->
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('userMessage').addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Prevent form submission (if any)
+            generateWebsite();
+        }
+    });
+
+    function generateWebsite() {
+        const userMessage = document.getElementById('userMessage');
+        const userId = '{{ user.id }}';
+        const generateButton = document.querySelector('.generate-button');
+        const saveButton = document.getElementById('saveButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const generateImages = document.getElementById('imageSwitch').checked; // Get the switch status
+
+        if (userMessage.value.trim() === "") {
+            alert("Please enter a description.");
+            return;
+        }
+
+        // Show loading state
+        generateButton.innerHTML = "Loading...";
+        generateButton.disabled = true;
+        userMessage.disabled = true; // Disable input during loading
+        loadingIndicator.style.display = "flex"; // Show loading indicator
+
+        fetch(`/work/${userId}/advancedMode/getResponse?userMessage=${encodeURIComponent(userMessage.value)}&generateImages=${generateImages}`)
+            .then(response => response.json())
+            .then(data => {
+                const iframe = document.getElementById('websitePreview');
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+                iframeDoc.open();
+                iframeDoc.write(data.body);
+                iframeDoc.close();
+
+                const css = data.css.replace(/<style.*?>|<\/style>/g, "");
+                const styleTag = iframeDoc.createElement('style');
+                styleTag.innerHTML = css;
+                iframeDoc.head.appendChild(styleTag);
+
+                let script = iframeDoc.createElement("script");
+                script.innerHTML = data.js.replace(/<script.*?>|<\/script>/g, "");
+                iframeDoc.body.appendChild(script);
+            })
+            .catch(error => {
+                console.error("Error generating website:", error);
+                alert("An error occurred while generating the website.");
+            })
+            .finally(() => {
+                // Restore button and input state
+                generateButton.innerHTML = "Generate";
+                generateButton.disabled = false;
+                userMessage.disabled = false; // Re-enable input
+                loadingIndicator.style.display = "none"; // Hide loading indicator
+
+                // Show the save button
+                saveButton.style.display = "inline-block";
+            });
+    }
+
+    // Function to show the popup when save is clicked
+    function showSaveModal() {
+        const modal = document.getElementById('titlePopup');
+        modal.style.display = 'flex';  // Show the modal
+    }
+
+    // Function to close the popup and save the website
+    // Flag to track if the save action should happen
+let shouldSave = false;
+
+// Function to handle the Done button action
+function closePopup(save = false) {
+    const title = document.getElementById('titleInput').value;
+    const userMessage = document.getElementById('userMessage').value;
+    const bodyContent = document.getElementById('websitePreview').contentWindow.document.body.innerHTML;  // Get body from iframe
+    const cssContent = document.getElementById('websitePreview').contentWindow.document.querySelector('style').innerHTML || '';  // Get CSS from iframe
+    const jsContent = document.getElementById('websitePreview').contentWindow.document.querySelector('script').innerHTML || '';  // Get JS from iframe
+
+    // Only save if save is true (for the Done button)
+    if (save && title.trim()) {
+        // Send title, prompt, body, CSS, and JS to the server via AJAX
+        const data = new FormData();
+        data.append('title', title);
+        data.append('prompt', userMessage);  // Sending the prompt as well
+        data.append('body', bodyContent);
+        data.append('css', cssContent);
+        data.append('js', jsContent);
+        data.append('csrfmiddlewaretoken', '{{ csrf_token }}');  // CSRF token
+
+        fetch("{% url 'work:save_generated_website' %}", {
+            method: 'POST',
+            body: data,
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);  // Show a success message
+            } else {
+                alert('Something went wrong.');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving website:', error);
+            alert('Failed to save website.');
+        });
+    } else if (save) {
+        alert('Please enter a title.');
+    }
+
+    // Close the modal regardless of Done or Cancel action
+    document.getElementById('titlePopup').style.display = 'none';
+}
+
+// Event listeners for Done and Cancel buttons
+document.getElementById('doneButton').addEventListener('click', () => closePopup(true));  // Done button will trigger save
+document.getElementById('cancelButton').addEventListener('click', () => closePopup(false));  // Cancel button will not trigger save
+
+
+</script>
+
+
+<style>
+    html, body { overflow-x: hidden; }
+    .bg-shapes{
+        display: none;
+    }
+    .generated-content {
+        margin-top: 110px;
+        width: 100%;
+        height: 70vh;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .website-preview {
+        width: 100%;
+        height: 100%;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .input-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap; /* Allow the elements to wrap to the next line */
+    }
+
+    .user-input {
+        padding: 12px;
+        width: 50%; /* Adjust width to avoid overflow */
+        margin-right: 15px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }
+
+    .generate-button {
+        padding: 12px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        background-color: #6366f1;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    .generate-button:hover {
+        background-color: #8b5cf6;
+    }
+
+    .save-button {
+        display: inline-flex;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        margin-left: 10px;
+        transition: background-color 0.3s ease;
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--color-foreground-muted);
+    }
+
+    .save-button:hover {
+        border: 1px solid #6366F1;
+    }
+
+    
+    .loading-spinner {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--color-gray-200);
+        border-top: 4px solid var(--color-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    /* Modal styles */
+    .title-popup {
+        display: none; /* Initially hidden */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Background overlay */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    /* Popup content styling */
+    .popup-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        width: 300px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .title-input {
+        padding: 10px;
+        width: 80%;
+        margin: 10px 0;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .done-button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .done-button:hover {
+        background-color: #45a049;
+    }
+
+    .cancel-button {
+    padding: 10px 20px;
+    background-color: #f44336; /* Red color */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+.cancel-button:hover {
+    background-color: #e53935;
+}
+
+</style>
+{% endblock %}
