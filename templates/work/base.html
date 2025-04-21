@@ -27,16 +27,19 @@
     <!-- Header -->
     <header class="header dashboard-header">
         <div class="container">
-            <div class="logo">
+            <a href="{% url 'work:home' user.id %}">
+                <div class="logo">
                 <div class="logo-mark">
                     <img src="{% static 'images/logo.png' %}" alt="logo" class="logo-mark">
                 </div>
                 <span>housAI</span>
             </div>
+            </a>
+            
             
             <nav class="nav">
                 <ul class="nav-links">
-                    <li><a href="{% url 'work:home' user.id %}" {% block navactivehome %}{% endblock %}>Home</a></li>
+                    <li><a href="{% url 'work:advanced_mode' user.id %}" {% block navactivegenerate %}{% endblock %}>Generate</a></li>
                     <li><a href="{% url 'work:templates' user.id %}" {% block navactivetemplates%}{% endblock %}>Templates</a></li>
                     <li><a href="{% url 'work:history' user.id %}" {% block navactivehistory %}{% endblock %}>Saved</a></li>
                 </ul>
@@ -61,19 +64,16 @@
                         </a>
                         <div class="dropdown-divider"></div>
                         {% if user.is_authenticated %}
-                          <form action="{% url 'work:logout' %}" method="post" style="margin: 0; padding: 0;">
-                            {% csrf_token %}
-                            <button type="submit" class="dropdown-item" style=" border: none; background: none; font-size: medium; cursor: pointer;">
-                              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" style="margin-right: 0.75rem;">
+                        <a href="" class="dropdown-item" id="logout">
+                            {% endif %}    
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                                 <polyline points="16 17 21 12 16 7"></polyline>
                                 <line x1="21" y1="12" x2="9" y2="12"></line>
-                              </svg>
-                              Logout
-                            </button>
-                          </form>
-                        {% endif %}
-                        
+                            </svg>
+                            Logout
+                        </a>
+                    </div>
                 </div>
                 <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
                     <span></span>
@@ -86,26 +86,21 @@
         <!-- Mobile Menu -->
         <div class="mobile-menu" id="mobileMenu">
             <ul class="mobile-nav-links">
-                <li><a href="{% url 'work:home' user.id %}" >Home</a></li>
+                <li><a href="{% url 'work:advanced_mode' user.id %}" >Generate</a></li>
                 <li><a href="{% url 'work:templates' user.id %}" >Templates</a></li>
                 <li><a href="{% url 'work:history' user.id %}">Saved</a></li>
                 <li><a href="{% url 'work:profile' user.id %}">Profile</a></li>
-                <li><a href="{% url 'work:settings'%}">Settings</a></li>
+                <li><a href="{% url 'work:settings' %}">Settings</a></li>
                 
-                {% if user.is_authenticated %}
-                <li>
-                    <form action="{% url 'work:logout' %}" method="post" style="margin: 0;">
-                        {% csrf_token %}
-                        <button type="submit" style="background: none; border: none; padding: 0;  cursor: pointer; color:#64748b; font-weight: 500; font-size: 1.25rem;">
-                            Logout
-                        </button>
-                    </form>
+                <li>{% if user.is_authenticated %}
+                    <a href="" id="logout-mobile">Logout</a>{% endif %} 
                 </li>
-                {% endif %}
-                   
             </ul>
         </div>
     </header>
+    <form id="logout-form" method="POST" action="{% url 'login:logout' %}" style="display: none;">
+        {% csrf_token %}
+    </form>
     {% block content %}
         {% endblock %}
     
@@ -145,6 +140,16 @@
                 });
             });
         });
+
+//logout code
+        document.getElementById("logout").addEventListener("click", function(e) {
+    e.preventDefault();
+    document.getElementById("logout-form").submit();
+});
+document.getElementById("logout-mobile").addEventListener("click", function(e) {
+    e.preventDefault();
+    document.getElementById("logout-form").submit();
+});
     </script>
 </body>
 </html>
