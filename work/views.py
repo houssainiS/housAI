@@ -58,6 +58,7 @@ Instructions:
 - All layout styling must be included inside the `<style>` tag using **internal CSS only**. Do not use inline styles or external files.
 - The `<style>` must ensure cross-device responsiveness (mobile, tablet, desktop) and use accessible contrast ratios and modern fonts.
 - Any `<img>` must include a descriptive `alt` attribute.
+- If there are `<img>` tags, **ensure images always fully fit inside their containers without breaking the layout** (e.g., using `object-fit: cover`, `max-width: 100%`, `height: auto`).
 - The `<script>` tag must include **working internal JavaScript** (if the design includes interactivity like toggles, modals, dropdowns, etc.), otherwise leave it empty.
 - If there is interactive behavior (menus, modals, toggles), ensure the JS code properly adds/removes classes, and is scoped only to the included HTML.
 - Do **not** include `<html>`, `<head>`, `<title>`, or any external links like `<link>` or `<script src=...>`.
