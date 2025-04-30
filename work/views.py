@@ -213,7 +213,7 @@ def view_code(request, user_id, website_id):
 
 #demo page
 
-def demo(request, user_id, website_id):
+def demo(request, website_id):
     website = get_object_or_404(GeneratedWebsite, id=website_id)
     return render(request, 'work/demo.html', {'website': website})
 

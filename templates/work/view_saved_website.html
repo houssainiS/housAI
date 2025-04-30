@@ -116,7 +116,7 @@
 
 <!-- Buttons for demo and code -->
 <div class="button-container" style="text-align: center;">
-    <a href="{% url 'work:demo' user.id website.id %}" class="btn btn-demo" target="_blank">Demo</a>
+    <a href="{% url 'work:demo' website.id %}" class="btn btn-demo" target="_blank">Demo</a>
     <a href="{% url 'work:view_code' user.id website.id %}" class="btn btn-code" target="_blank">Code</a>
     <a href="{% url 'work:edit' user.id website.id %}" class="btn btn-edit" target="_blank">Edit</a>
 
