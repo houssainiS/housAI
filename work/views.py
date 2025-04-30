@@ -33,7 +33,6 @@ def ask_dalle_2(prompt):
         response = client.images.generate(
             prompt=prompt,  # Use the prompt provided
             size="256x256",  # Use supported size (256x256)
-            quality="standard",  # Quality setting
             n=1,
         )
         
