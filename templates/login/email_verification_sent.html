@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - housAI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+    <style>
+        :root {
+            --color-background: #ffffff;
+            --color-foreground: #1e293b;
+            --color-foreground-muted: #64748b;
+            --color-primary: #6366f1;
+            --color-primary-light: rgba(99, 102, 241, 0.1);
+            --color-gray-50: #f8fafc;
+            --color-gray-100: #f1f5f9;
+            --color-gray-200: #e2e8f0;
+            --color-gray-300: #cbd5e1;
+            --color-gray-400: #94a3b8;
+            --color-gray-500: #64748b;
+            --color-gray-600: #475569;
+            --color-success: #10b981;
+            --color-error: #ef4444;
+            --border-color: var(--color-gray-200);
+            --border-radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease;
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--color-gray-50);
+            color: var(--color-foreground);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background Elements */
+        .bg-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+        }
+
+        .shape-1 {
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background-color: var(--color-primary);
+        }
+
+        .shape-2 {
+            bottom: -150px;
+            left: -150px;
+            width: 500px;
+            height: 500px;
+            background-color: #10b981;
+        }
+
+        .shape-3 {
+            top: 40%;
+            left: 30%;
+            width: 300px;
+            height: 300px;
+            background-color: #f59e0b;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .verification-card {
+            background-color: var(--color-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--color-foreground);
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            margin-right: 0.5rem;
+        }
+
+        .verification-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--color-primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+
+        .verification-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--color-primary);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--color-foreground);
+        }
+
+        p {
+            color: var(--color-foreground-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .email-highlight {
+            font-weight: 600;
+            color: var(--color-foreground);
+        }
+
+        .notice {
+            background-color: var(--color-primary-light);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .notice svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            color: var(--color-primary);
+            margin-right: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .notice p {
+            margin-bottom: 0;
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .btn-primary:hover {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+
+        .btn svg {
+            margin-right: 0.5rem;
+        }
+
+
+        footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--color-foreground-muted);
+        }
+
+        @media (max-width: 640px) {
+            .verification-card {
+                padding: 2rem 1.5rem;
+                margin-top: 2rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Elements -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="container">
+        <div class="verification-card">
+            <div class="logo">
+                <img src="{% static 'images/logo.png' %}" alt="housAI Logo" class="logo-mark">
+                <span>housAI</span>
+            </div>
+            
+            <div class="verification-icon">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            
+            <h1>Verification Email Sent</h1>
+            <p>We've sent a verification link to <span class="email-highlight">{{ email }}</span>. Please check your email and click the link to verify your account.</p>
+            
+            <div class="notice">
+                <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>If you don't see the email in your inbox, please check your spam or junk folder. The email should arrive within a few minutes.</p>
+            </div>
+            
+            <a href="{% url 'login:index' %}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Return to Home Page
+            </a>
+            
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; {% now "Y" %} housAI. All rights reserved.</p>
+    </footer>
+
+    
+</body>
+</html>
