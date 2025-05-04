@@ -58,8 +58,9 @@ Instructions:
 - The `<style>` must ensure cross-device responsiveness (mobile, tablet, desktop) and use accessible contrast ratios and modern fonts.
 - Any `<img>` must include a descriptive `alt` attribute.
 - If there are `<img>` tags, **ensure images always fully fit inside their containers without breaking the layout** (e.g., using `object-fit: cover`, `max-width: 100%`, `height: auto`).
-- The `<script>` tag must include **working internal JavaScript** (if the design includes interactivity like toggles, modals, dropdowns, etc.), otherwise leave it empty.
-- If there is interactive behavior (menus, modals, toggles), ensure the JS code properly adds/removes classes, and is scoped only to the included HTML.
+- If the design includes JavaScript interactivity (menus, modals, toggles, etc.), place the `<script>` tag **at the end of the `<body>` content**, just before `</body>`, and ensure the code works when executed there.
+- The script must properly add/remove classes and be scoped only to the included HTML.
+- If there is no interactivity, the `<script>` can be empty.
 - Do **not** include `<html>`, `<head>`, `<title>`, or any external links like `<link>` or `<script src=...>`.
 - Do not use frameworks like Bootstrap or libraries like jQuery.
 
@@ -187,28 +188,26 @@ def view_saved_website(request, user_id, website_id):
 def view_code(request, user_id, website_id):
     website = get_object_or_404(GeneratedWebsite, id=website_id)
 
-    # Construct the full code including CSS, Body, and JS
     full_code = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{website.title}</title>
-    <style>{website.css}</style>  <!-- Ensure CSS is included -->
+    <style>{website.css}</style>
 </head>
 <body>
     {website.body}
-    <script>{website.js}</script>  <!-- Ensure JS is included -->
 </body>
 </html>"""
 
-    # Split full code into lines for proper display
     code_lines = full_code.splitlines()
 
     return render(request, 'work/code.html', {
         'website': website,
         'code_lines': code_lines
     })
+
 
 #demo page
 

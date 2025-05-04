@@ -8,17 +8,11 @@
 </head>
 <body>
     {{ website.body|safe }}
-    
-    <script>
-        // Inject CSS into <style> tag
-        var cssContent = "{{ website.css|escapejs }}";
-        var styleTag = document.getElementById('dynamic-style');
-        styleTag.innerHTML = cssContent;
-    </script>
 
-    <!-- Inject JS directly -->
+    <!-- Inject CSS only -->
     <script>
-        {{ website.js|safe }}
+        var cssContent = "{{ website.css|escapejs }}";
+        document.getElementById('dynamic-style').innerHTML = cssContent;
     </script>
 </body>
 </html>
