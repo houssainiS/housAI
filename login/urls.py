@@ -12,4 +12,6 @@ urlpatterns = [
     path('subscription/update/<str:plan>/', views.update_subscription, name='update_subscription'),
     path('logout/', LogoutView.as_view(next_page='login:index'), name='logout'),  # Logout view
     path('verify-email/<uidb64>/<token>/', views.verify_email, name='verify_email'),
+    path('forgot-password/', views.password_reset_request, name='password_reset'),
+    path('reset-password/<uidb64>/<token>/', views.password_reset_confirm, name='password_reset_confirm'),
 ]

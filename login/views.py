@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate , get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from .models import User , Subscription
 from .forms import CustomUserCreationForm
@@ -12,12 +12,92 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.encoding import force_str
+#reset password 
+from django.contrib.auth.forms import SetPasswordForm
+
 
 def index(request):
     # If the user is already logged in, redirect them to the home page
     if request.user.is_authenticated:
         return redirect('work:home', user_id=request.user.id)
     return render(request, 'login/index.html')
+
+
+
+#password reset in case forgot
+
+User = get_user_model()
+
+def password_reset_request(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+            if not user.email:
+                return HttpResponse("This user doesn't have an email.")
+            
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            link = request.build_absolute_uri(
+                reverse('login:password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+            )
+
+            subject = "Reset Your Password"
+            message = f"""
+<html>
+<body style="background-color: #ffffff; font-family: Arial, sans-serif; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+        <h2 style="color: #6366f1; text-align: center;">Reset Your Password – housAI</h2>
+        <p style="font-size: 16px; color: #555;">
+            Hi {user.username},
+        </p>
+        <p style="font-size: 16px; color: #555;">
+            We received a request to reset your password. Click the button below to choose a new password:
+        </p>
+        <p style="text-align: center;">
+            <a href="{link}" style="background-color: #6366f1; color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-size: 16px;">Reset Password</a>
+        </p>
+        <p style="font-size: 14px; color: #777; text-align: center;">
+            If you didn’t request a password reset, you can safely ignore this email.
+        </p>
+        <p style="font-size: 14px; color: #777; text-align: center;">
+            – The housAI Team
+        </p>
+    </div>
+</body>
+</html>
+"""
+
+            send_mail(subject, '', 'housai.email@gmail.com', [user.email], html_message=message)
+
+            return render(request, 'login/password_reset_email_sent.html')
+        except User.DoesNotExist:
+            return render(request, 'login/user_not_found.html')
+
+    return render(request, 'login/password_reset_request.html')
+
+
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except Exception:
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                login(request, user)
+                return redirect('work:home', user_id=user.id)
+        else:
+            form = SetPasswordForm(user)
+        return render(request, 'login/password_reset_confirm.html', {'form': form})
+    else:
+        return HttpResponse("Invalid or expired link.")
+    
+
 
 #register & verification
 def send_verification_email(request, user):
