@@ -203,3 +203,7 @@ input[type="password"]:focus {
 .errorlist li {
     font-size: 0.9rem;
 }
+
+.forgot-link {
+    font-size: 0.75rem;
+}
